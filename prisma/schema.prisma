@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  password      String
+  role          String    @default("client")
+  position      String?
+  avatar        String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  company       Company?  @relation(fields: [companyId], references: [id])
+  companyId     String?
+  notifications Notification[]
+  reports       Report[]
+}
+
+model Company {
+  id          String    @id @default(cuid())
+  name        String
+  industry    String?
+  address     String?
+  website     String?
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  users       User[]
+  campaigns   Campaign[]
+}
+
+model Campaign {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  platform    String
+  budget      Float
+  spent       Float     @default(0)
+  impressions Int       @default(0)
+  clicks      Int       @default(0)
+  conversions Int       @default(0)
+  status      String    @default("active")
+  startDate   DateTime
+  endDate     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  company     Company   @relation(fields: [companyId], references: [id])
+  companyId   String
+}
+
+model Notification {
+  id          String    @id @default(cuid())
+  title       String
+  description String
+  type        String    @default("message")
+  read        Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String
+}
+
+model Report {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  type        String
+  format      String
+  url         String
+  size        String?
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String
+}
+
+model Resource {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  type        String
+  format      String
+  url         String
+  size        String?
+  category    String?
+  views       Int       @default(0)
+  createdAt   DateTime  @default(now())
+}
+
